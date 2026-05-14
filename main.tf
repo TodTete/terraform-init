@@ -1,91 +1,130 @@
+####### VARIABLES #######
+
+variable "ami_id" {
+  description = "ID of the Amazon Machine Image (AMI) to use for the EC2 instance"
+  default     = "ami-0440d3b780d96b29d"
+}
+
+variable "instance_type" {
+  description = "Type of EC2 instance to create"
+  default     = "t3.micro"
+}
+
+variable "server_name" {
+  description = "Name tag for the EC2 instance"
+  default     = "nginx-server"
+}
+
+variable "environment" {
+  description = "Environment tag for the EC2 instance"
+  default     = "test"
+}
+
 ####### PROVIDER #######
+
 provider "aws" {
   region = "us-east-1"
 }
 
-####### RESOURCE #######
-resource "aws_instance" "nginx-sever" {
-  ami = "ami-0440d3b780d96b29d" //Image ID for Amazon Linux 2 in us-east-1
-  instance_type  = "t3.micro"
+####### EC2 INSTANCE #######
+
+resource "aws_instance" "nginx_server" {
+
+  ami           = var.ami_id
+  instance_type = var.instance_type
 
   user_data = <<-EOF
               #!/bin/bash
-              sudo yum update -y
-              sudo yum install -y nginx
-              sudo systemctl enable nginx
-              sudo systemctl start nginx
+              dnf update -y
+              dnf install -y nginx
+              systemctl enable nginx
+              systemctl start nginx
               EOF
 
-  key_name = aws_key_pair.nginx-server-ssh.key_name # Reference to the key pair created below
+  key_name = aws_key_pair.nginx_server_ssh.key_name
 
   vpc_security_group_ids = [
-    aws_security_group.nginx-server-sg.id # Reference to the security group created below
+    aws_security_group.nginx_server_sg.id
   ]
 
   tags = {
-    Name = "nginx-server"
-    Environment = "test"
-    Owner = "TodTete"
-    Team = "DevOps"
-    Project = "Terraform Init"
+    Name        = var.server_name
+    Environment = var.environment
+    Owner       = "TodTete"
+    Team        = "DevOps"
+    Project     = "Terraform Init"
   }
 }
 
-resource "aws_key_pair" "nginx-server-ssh" {
-  key_name = "nginx-server-ssh"
-  public_key = file("nginx-server.key.pub")
+####### SSH KEY #######
+# Generate key:
+# ssh-keygen -t rsa -b 2048 -f "nginx-server.key"
 
-    tags = {
-    Name = "nginx-server-sg"
-    Environment = "test"
-    Owner = "TodTete"
-    Team = "DevOps"
-    Project = "Terraform Init"
+resource "aws_key_pair" "nginx_server_ssh" {
+
+  key_name   = "${var.server_name}-ssh"
+  public_key = file("${var.server_name}.key.pub")
+
+  tags = {
+    Name        = "${var.server_name}-ssh"
+    Environment = var.environment
+    Owner       = "TodTete"
+    Team        = "DevOps"
+    Project     = "Terraform Init"
   }
 }
 
-####### SECURE GROUPS #######
-resource "aws_security_group" "nginx-server-sg" {
-  name  = "nginx-server-sg"
+####### SECURITY GROUP #######
+
+resource "aws_security_group" "nginx_server_sg" {
+
+  name        = "${var.server_name}-sg"
   description = "Security group allowing SSH and HTTP access to the nginx server"
 
   ingress {
+    description = "SSH"
+
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Allow SSH from anywhere (not recommended for production)
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
+    description = "HTTP"
+
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Allow HTTP from anywhere
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
+    description = "Allow all outbound traffic"
+
     from_port   = 0
     to_port     = 0
-    protocol    = "-1" # Allow all outbound traffic
-    cidr_blocks = ["0.0.0.0/0"] # Allow all outbound traffic
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
-    Name = "nginx-server-sg"
-    Environment = "test"
-    Owner = "TodTete"
-    Team = "DevOps"
-    Project = "Terraform Init"
+    Name        = "${var.server_name}-sg"
+    Environment = var.environment
+    Owner       = "TodTete"
+    Team        = "DevOps"
+    Project     = "Terraform Init"
   }
 }
 
-####### OUTPUT #######
-output "server_public_id" {
+####### OUTPUTS #######
+
+output "server_public_ip" {
   description = "The public IP address of the nginx server"
-  value = aws_instance.nginx-sever.public_ip
+  value       = aws_instance.nginx_server.public_ip
 }
 
 output "server_public_dns" {
   description = "The public DNS name of the nginx server"
-  value = aws_instance.nginx-sever.public_dns
+  value       = aws_instance.nginx_server.public_dns
 }
