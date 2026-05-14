@@ -1,0 +1,10 @@
+    Comandos de Terraform
+
+terraform init #inicisializar un directorio de trabajo
+terraform plan #generar un plan de ejecucion 
+terraform apply #ejecutar el plan de ejecucion
+terraform destroy #destruir la infraestructura creada
+terraform fmt #formatear los archivos de configuracion
+terraform validate #validar los archivos de configuracion
+terraform show #mostrar el estado actual de la infraestructura
+terraform state list #listar los recursos gestionados por terraform
