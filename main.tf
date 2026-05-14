@@ -21,6 +21,14 @@ resource "aws_instance" "nginx-sever" {
   vpc_security_group_ids = [
     aws_security_group.nginx-server-sg.id # Reference to the security group created below
   ]
+
+  tags = {
+    Name = "nginx-server"
+    Environment = "test"
+    Owner = "TodTete"
+    Team = "DevOps"
+    Project = "Terraform Init"
+  }
 }
 
 resource "aws_key_pair" "nginx-server-ssh" {
