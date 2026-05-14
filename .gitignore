@@ -1,5 +1,7 @@
-
+nginx-server.key
+nginx-server.key.pub
 
 .terraform
 .terraform.lock.hcl
 *.tfstate
+terraform.tfstate.backup
