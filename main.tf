@@ -79,3 +79,13 @@ resource "aws_security_group" "nginx-server-sg" {
   }
 }
 
+####### OUTPUT #######
+output "server_public_id" {
+  description = "The public IP address of the nginx server"
+  value = aws_instance.nginx-sever.public_ip
+}
+
+output "server_public_dns" {
+  description = "The public DNS name of the nginx server"
+  value = aws_instance.nginx-sever.public_dns
+}
