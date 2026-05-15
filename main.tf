@@ -1,3 +1,13 @@
+###### TFSTATE ######
+
+terraform {
+    backend "s3" {
+        bucket = "xxxxxx"
+        key = "xxxxxx"
+        region = "us-east-1"
+    }
+}
+
 ###### MODULES ######
 
 module "nginx_server_dev" {
@@ -38,4 +48,10 @@ output "nginx_qa_ip" {
 output "nginx_qa_dns" {
   description = "The public DNS name of the nginx server"
   value       = module.nginx_server_qa.server_public_dns
+}
+
+###### IMPORT ######
+
+resource "aws_instance" "nginx_server_dev" {
+  # This resource block is intentionally left empty for import
 }
