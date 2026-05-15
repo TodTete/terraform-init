@@ -8,3 +8,15 @@ module "nginx_server_dev" {
     server_name = "nginx-server-dev"
     environment = "dev"
 }
+
+####### OUTPUTS #######
+
+output "nginx_dev_ip" {
+  description = "The public IP address of the nginx server"
+  value       = module.nginx_server_dev.server_public_ip
+}
+
+output "nginx_dev_dns" {
+  description = "The public DNS name of the nginx server"
+  value       = module.nginx_server_dev.server_public_dns
+}
